@@ -10,13 +10,12 @@ NUM_CLASSES = 10
 
 
 def build_baseline_model():
-    """Create the simple feed-forward neural network for Part 1."""
+    """Create a small baseline model that acts as a stable reference."""
     model = Sequential(
         [
             Input(shape=INPUT_SHAPE, name="input"),
             Flatten(name="flatten"),
-            Dense(128, activation="relu", name="dense_128"),
-            Dense(64, activation="relu", name="dense_64"),
+            Dense(32, activation="relu", name="dense_32"),
             Dense(NUM_CLASSES, activation="softmax", name="output"),
         ],
         name="baseline_model",

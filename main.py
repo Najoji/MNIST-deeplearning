@@ -42,7 +42,7 @@ def main():
         train_data=train_data,
         val_data=val_data,
         test_data=test_data,
-        epochs=10,
+        epochs=6,
         batch_size=128,
     )
 

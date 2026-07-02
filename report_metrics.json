@@ -1,12 +1,12 @@
 {
   "Baseline": {
-    "parameters": 109386,
-    "train_accuracy": 0.9883599877357483,
-    "validation_accuracy": 0.9696999788284302,
-    "test_accuracy": 0.97079998254776,
-    "train_loss": 0.033406998962163925,
-    "validation_loss": 0.11735448986291885,
-    "test_loss": 0.11338727921247482
+    "parameters": 25450,
+    "train_accuracy": 0.9594600200653076,
+    "validation_accuracy": 0.9585000276565552,
+    "test_accuracy": 0.9534000158309937,
+    "train_loss": 0.14108356833457947,
+    "validation_loss": 0.15005409717559814,
+    "test_loss": 0.1590452343225479
   },
   "Overfitted": {
     "parameters": 2774794,

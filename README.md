@@ -33,6 +33,16 @@ All pixel values are normalized from the original range `[0, 255]` to `[0, 1]`.
 
 Overfitting happens when a model learns the training data too closely instead of learning patterns that generalize well to new data. An overfitted model usually has very high training accuracy but lower validation or test accuracy. Its validation loss may stop improving or increase while training loss continues to decrease.
 
+## Baseline Model Design
+
+The baseline model is intentionally small so it can act as a stable reference:
+
+- Flatten
+- Dense(32, ReLU)
+- Dense(10, Softmax)
+
+It is trained for 6 epochs. This keeps the baseline simple and avoids making it another overfitting example.
+
 ## How Overfitting Was Intentionally Created
 
 The overfitted model uses a much larger architecture than the baseline:
