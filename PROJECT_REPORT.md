@@ -8,7 +8,7 @@ The main objectives of the project are:
 
 | Objective | Explanation |
 |---|---|
-| Build a baseline classifier | Create a simple neural network that gives a reliable starting performance. |
+| Build a baseline classifier | Create a small regularized reference model that is trained until validation loss plateaus. |
 | Demonstrate overfitting | Train a larger model without regularization so the difference between training and validation behavior becomes visible. |
 | Reduce overfitting | Apply dropout, L2 regularization, early stopping, and learning-rate reduction to improve generalization. |
 | Compare model performance | Evaluate all models on the same training, validation, and test splits for a fair comparison. |
@@ -17,7 +17,7 @@ The three models are:
 
 | Model | Purpose |
 |---|---|
-| Baseline Model | A simple feed-forward neural network used as the reference model. |
+| Baseline Model | A small regularized neural network used as the reference model. |
 | Overfitted Model | A much larger model trained without regularization to intentionally encourage overfitting. |
 | Improved Model | The same large architecture as the overfitted model, improved using regularization and training callbacks. |
 
@@ -56,28 +56,38 @@ The complete workflow followed by the project is:
 
 | Model | Architecture Summary | Parameters |
 |---|---|---:|
-| Baseline | Flatten -> Dense(32) -> Dense(10) | 25,450 |
+| Baseline | Flatten -> Dense(32) -> Dropout(0.2) -> Dense(10) | 25,450 |
 | Overfitted | Flatten -> Dense(1024) -> Dense(1024) -> Dense(512) -> Dense(512) -> Dense(256) -> Dense(10) | 2,774,794 |
 | Improved | Same as Overfitted, with L2 regularization and Dropout after each hidden layer | 2,774,794 |
 
-All models use ReLU activations in hidden layers and Softmax activation in the output layer. The loss function is sparse categorical cross-entropy, and the optimizer is Adam with a learning rate of `0.001`.
+Models with hidden layers use ReLU activations, and all models use Softmax activation in the output layer. The loss function is sparse categorical cross-entropy, and the optimizer is Adam with a learning rate of `0.001`.
 
-The baseline model is intentionally small, with only one hidden layer. This makes it faster, easier to interpret, and less likely to memorize the training data. The overfitted and improved models have the same number of parameters, which makes their comparison fair: any improvement in the improved model comes from training strategy and regularization, not from reducing the model size.
+The baseline model is intentionally small and lightly regularized. This gives it enough capacity to reach a reasonable MNIST accuracy while keeping the training, validation, and test results close together. The overfitted and improved models have the same number of parameters, which makes their comparison fair: any improvement in the improved model comes from training strategy and regularization, not from reducing the model size.
 
 ## 5. Training Strategy
 
-The baseline model is trained for 6 epochs. This keeps it as a conservative reference model and avoids training it long enough to memorize the training split. The overfitted model is trained for 60 epochs with no dropout, no L2 regularization, and no early stopping. This gives it enough capacity and training time to fit the training set very closely.
+The baseline model is trained for 15 epochs, which is long enough for the validation accuracy to stabilize while keeping the training, validation, and test results close together. The overfitted model is trained for 60 epochs with no dropout, no L2 regularization, and no early stopping. This gives it enough capacity and training time to fit the training set very closely.
 
 The improved model keeps the same large hidden-layer sizes as the overfitted model, but adds:
 
 | Technique | Purpose |
 |---|---|
-| Dropout, rate `0.5` | Randomly disables neurons during training to reduce memorization. |
-| L2 regularization, strength `0.001` | Penalizes large weights and encourages smoother decision boundaries. |
-| EarlyStopping | Stops training when validation loss stops improving and restores the best weights. |
+| Dropout, rate `0.3` | Randomly disables neurons during training to reduce memorization. |
+| L2 regularization, strength `0.0001` | Penalizes large weights and encourages smoother decision boundaries. |
+| EarlyStopping | Restores the best weights. The baseline monitors validation loss, while the improved model monitors validation accuracy. |
 | ReduceLROnPlateau | Reduces learning rate when validation loss plateaus. |
 
 The overfitted model is intentionally designed as a learning example. Its purpose is not only to get high accuracy, but also to show how a model can perform extremely well on training data while becoming less reliable on unseen data.
+
+The actual number of epochs used by each saved model is:
+
+| Model | Maximum Epochs | Epochs Run | Best Epoch Restored |
+|---|---:|---:|---:|
+| Baseline | 15 | 15 | Not applicable |
+| Overfitted | 60 | 60 | Not applicable |
+| Improved | 35 | 30 | 24 |
+
+![Training epochs comparison](plots/model_epochs_comparison.png)
 
 ## 6. Important Implementation Details
 
@@ -95,13 +105,13 @@ The project also sets random seeds in `main.py` using Python, NumPy, and TensorF
 
 The saved models were reloaded and evaluated on the fixed train, validation, and test splits.
 
-| Model | Train Accuracy | Validation Accuracy | Test Accuracy | Train Loss | Validation Loss | Test Loss |
-|---|---:|---:|---:|---:|---:|---:|
-| Baseline | 95.95% | 95.85% | 95.34% | 0.1411 | 0.1501 | 0.1590 |
-| Overfitted | 99.66% | 97.93% | 97.98% | 0.0158 | 0.1551 | 0.1430 |
-| Improved | 99.91% | 98.37% | 98.28% | 0.1016 | 0.1570 | 0.1591 |
+| Model | Epochs Run | Train Accuracy | Validation Accuracy | Test Accuracy | Train Loss | Validation Loss | Test Loss |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Baseline | 15 | 95.97% | 95.88% | 95.73% | 0.1844 | 0.1956 | 0.1946 |
+| Overfitted | 60 | 99.66% | 97.93% | 97.98% | 0.0158 | 0.1551 | 0.1430 |
+| Improved | 30 | 99.79% | 98.49% | 98.44% | 0.0968 | 0.1543 | 0.1515 |
 
-The baseline model now has nearly identical training and validation accuracy, so it works as a stable reference rather than an overfitting example. The improved model achieves the best validation and test accuracy. Its loss is higher because L2 regularization contributes to the reported loss value, but its accuracy shows better generalization.
+The baseline model has close training, validation, and test accuracy, so it works as a stable reference rather than an overfitting example. The improved model achieves the best validation and test accuracy while reducing the loss gap compared with the overfitted model.
 
 ![Model accuracy comparison](plots/model_accuracy_comparison.png)
 
@@ -109,7 +119,7 @@ The baseline model now has nearly identical training and validation accuracy, so
 
 Overfitting can be identified by comparing training performance with validation and test performance. In this project, the overfitted model reaches 99.66% training accuracy, but its validation accuracy is 97.93% and its test accuracy is 97.98%. This gap shows that the model learned the training data more strongly than the general digit patterns.
 
-The improved model reaches the highest test accuracy, 98.28%, while keeping the same large architecture as the overfitted model. This shows that regularization can improve performance without necessarily reducing the number of layers or neurons.
+The improved model reaches the highest test accuracy, 98.44%, while keeping the same large architecture as the overfitted model. This shows that regularization can improve performance without necessarily reducing the number of layers or neurons.
 
 The most important comparison is between the overfitted and improved models:
 
@@ -119,19 +129,20 @@ The most important comparison is between the overfitted and improved models:
 | Dropout | No | Yes |
 | L2 Regularization | No | Yes |
 | Early Stopping | No | Yes |
-| Test Accuracy | 97.98% | 98.28% |
+| Validation Accuracy | 97.93% | 98.49% |
+| Test Accuracy | 97.98% | 98.44% |
 
 Another useful way to judge the improvement is to compare the loss gap between the training set and the test set. This focuses on how much the model's performance changes when it moves from familiar training data to unseen test data.
 
 | Loss Gap Comparison | Overfitted Model | Improved Model |
 |---|---:|---:|
-| Train Loss | 0.0158 | 0.1016 |
-| Test Loss | 0.1430 | 0.1591 |
-| Test Loss - Train Loss | 0.1272 | 0.0575 |
+| Train Loss | 0.0158 | 0.0968 |
+| Test Loss | 0.1430 | 0.1515 |
+| Test Loss - Train Loss | 0.1272 | 0.0547 |
 
-Using the rounded values from the results table, the overfitted model has a loss gap of `0.1430 - 0.0158 = 0.1272`. The improved model has a smaller loss gap of `0.1591 - 0.1016 = 0.0575`. This means the improved model reduces the train-to-test loss divergence by more than half while also raising test accuracy from 97.98% to 98.28%.
+Using the rounded values from the results table, the overfitted model has a loss gap of `0.1430 - 0.0158 = 0.1272`. The improved model has a smaller loss gap of `0.1515 - 0.0968 = 0.0547`. This means the improved model reduces the train-to-test loss divergence by more than half while also raising test accuracy from 97.98% to 98.44%.
 
-The improved model's absolute loss is higher partly because L2 regularization adds a penalty term to the reported loss. For that reason, the loss gap and the final validation/test accuracy are more useful than looking only at the raw test loss.
+Because L2 regularization adds a penalty term to the reported loss, accuracy and the train-to-test loss gap are more useful than looking only at raw training loss. The improved model has a slightly higher raw test loss than the overfitted model, but it has a much smaller loss gap and higher validation/test accuracy.
 
 This comparison supports the conclusion that the improvement comes from better training control and regularization rather than from using a smaller or simpler model.
 
@@ -143,7 +154,7 @@ This comparison supports the conclusion that the improvement comes from better t
 
 ![Baseline loss curve](plots/baseline_model_loss.png)
 
-The baseline model learns quickly and keeps training and validation accuracy close together. This shows that it is properly sized for its role as a reference model and does not show meaningful overfitting.
+The baseline model is trained for 15 epochs. Its training and validation accuracy stay close together, which shows that it is properly sized for its role as a reference model and does not show meaningful overfitting.
 
 ### Overfitted Model
 
@@ -159,7 +170,7 @@ The overfitted model reaches very high training accuracy. Its validation loss is
 
 ![Improved loss curve](plots/improved_model_loss.png)
 
-The improved model uses the same large architecture but adds regularization and callbacks. It produces the highest validation accuracy and the highest test accuracy among the three models.
+The improved model uses the same large architecture but adds regularization and callbacks. It produces the highest validation accuracy, the highest test accuracy, and a much smaller train-to-test loss gap than the overfitted model.
 
 ## 10. Additional Evaluation Figures
 
@@ -205,7 +216,7 @@ Other useful improvements include testing different dropout rates, trying differ
 
 The experiment shows that increasing model capacity can improve performance, but it also increases the risk of overfitting. The baseline model is intentionally simple and stable, while the much larger overfitted model achieves higher accuracy at the cost of a clearer gap between training and validation behavior.
 
-The improved model is the best final model because it keeps the large architecture while using dropout, L2 regularization, early stopping, and adaptive learning-rate reduction. It achieves the highest test accuracy at 98.28%, making it the strongest generalizing model in this project.
+The improved model is the best final model because it keeps the large architecture while using dropout, L2 regularization, early stopping, and adaptive learning-rate reduction. It achieves the highest test accuracy at 98.44%, making it the strongest generalizing model in this project.
 
 Overall, the project successfully demonstrates the full deep learning workflow: dataset preparation, model design, training, overfitting analysis, regularization, evaluation, visualization, and final comparison.
 
@@ -220,6 +231,7 @@ Overall, the project successfully demonstrates the full deep learning workflow: 
 | Overfitted training plots | `plots/overfit_model_accuracy.png`, `plots/overfit_model_loss.png` |
 | Improved training plots | `plots/improved_model_accuracy.png`, `plots/improved_model_loss.png` |
 | Accuracy comparison figure | `plots/model_accuracy_comparison.png` |
+| Epoch comparison figure | `plots/model_epochs_comparison.png` |
 | Confusion matrix figure | `plots/improved_model_confusion_matrix.png` |
 | Sample prediction figure | `plots/improved_model_sample_predictions.png` |
 | Report metrics | `report_metrics.json` |

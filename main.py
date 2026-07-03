@@ -6,7 +6,11 @@ import numpy as np
 import tensorflow as tf
 
 from models import build_baseline_model, build_improved_model, build_overfit_model
-from train import compile_model, improved_model_callbacks, train_and_evaluate
+from train import (
+    compile_model,
+    improved_model_callbacks,
+    train_and_evaluate,
+)
 from utils import ensure_directories, load_mnist_fixed_split, print_comparison_table
 
 
@@ -34,6 +38,7 @@ def main():
 
     results = {}
 
+    set_reproducibility()
     baseline_model = compile_model(build_baseline_model())
     results["Baseline Model"] = train_and_evaluate(
         baseline_model,
@@ -42,10 +47,11 @@ def main():
         train_data=train_data,
         val_data=val_data,
         test_data=test_data,
-        epochs=6,
+        epochs=15,
         batch_size=128,
     )
 
+    set_reproducibility()
     overfit_model = compile_model(build_overfit_model())
     results["Overfitted Model"] = train_and_evaluate(
         overfit_model,
@@ -58,6 +64,7 @@ def main():
         batch_size=128,
     )
 
+    set_reproducibility()
     improved_model = compile_model(build_improved_model())
     results["Improved Model"] = train_and_evaluate(
         improved_model,
@@ -66,7 +73,7 @@ def main():
         train_data=train_data,
         val_data=val_data,
         test_data=test_data,
-        epochs=100,
+        epochs=35,
         batch_size=128,
         callbacks=improved_model_callbacks(),
     )

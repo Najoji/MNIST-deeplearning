@@ -1,12 +1,16 @@
 {
   "Baseline": {
     "parameters": 25450,
-    "train_accuracy": 0.9594600200653076,
-    "validation_accuracy": 0.9585000276565552,
-    "test_accuracy": 0.9534000158309937,
-    "train_loss": 0.14108356833457947,
-    "validation_loss": 0.15005409717559814,
-    "test_loss": 0.1590452343225479
+    "train_accuracy": 0.959659993648529,
+    "validation_accuracy": 0.9588000178337097,
+    "test_accuracy": 0.9573000073432922,
+    "train_loss": 0.1843891590833664,
+    "validation_loss": 0.19556769728660583,
+    "test_loss": 0.1945619434118271,
+    "max_epochs": 15,
+    "epochs_run": 15,
+    "best_epoch": 15,
+    "stopping_monitor": null
   },
   "Overfitted": {
     "parameters": 2774794,
@@ -15,15 +19,23 @@
     "test_accuracy": 0.9797999858856201,
     "train_loss": 0.015773368999361992,
     "validation_loss": 0.155146986246109,
-    "test_loss": 0.14304883778095245
+    "test_loss": 0.14304883778095245,
+    "max_epochs": 60,
+    "epochs_run": 60,
+    "best_epoch": null,
+    "stopping_monitor": null
   },
   "Improved": {
     "parameters": 2774794,
-    "train_accuracy": 0.9990800023078918,
-    "validation_accuracy": 0.9836999773979187,
-    "test_accuracy": 0.9828000068664551,
-    "train_loss": 0.10164051502943039,
-    "validation_loss": 0.1570369452238083,
-    "test_loss": 0.1591026782989502
+    "train_accuracy": 0.9978600144386292,
+    "validation_accuracy": 0.9848999977111816,
+    "test_accuracy": 0.9843999743461609,
+    "train_loss": 0.09677186608314514,
+    "validation_loss": 0.15430910885334015,
+    "test_loss": 0.1514737606048584,
+    "max_epochs": 35,
+    "epochs_run": 30,
+    "best_epoch": 24,
+    "stopping_monitor": "validation_accuracy"
   }
 }

@@ -64,8 +64,8 @@ def train_and_evaluate(
     return metrics
 
 
-def improved_model_callbacks():
-    """Callbacks used only for the regularized improved model."""
+def baseline_model_callbacks():
+    """Callbacks used to train the baseline until validation loss plateaus."""
     return [
         EarlyStopping(
             monitor="val_loss",
@@ -76,7 +76,27 @@ def improved_model_callbacks():
         ReduceLROnPlateau(
             monitor="val_loss",
             factor=0.5,
-            patience=3,
+            patience=4,
+            min_lr=1e-6,
+            verbose=1,
+        ),
+    ]
+
+
+def improved_model_callbacks():
+    """Callbacks used only for the regularized improved model."""
+    return [
+        EarlyStopping(
+            monitor="val_accuracy",
+            mode="max",
+            patience=6,
+            restore_best_weights=True,
+            verbose=1,
+        ),
+        ReduceLROnPlateau(
+            monitor="val_loss",
+            factor=0.5,
+            patience=2,
             min_lr=1e-6,
             verbose=1,
         ),

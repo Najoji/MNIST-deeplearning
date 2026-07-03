@@ -10,12 +10,18 @@ NUM_CLASSES = 10
 
 
 def build_baseline_model():
-    """Create a small baseline model that acts as a stable reference."""
+    """Create a small regularized baseline classifier."""
     model = Sequential(
         [
             Input(shape=INPUT_SHAPE, name="input"),
             Flatten(name="flatten"),
-            Dense(32, activation="relu", name="dense_32"),
+            Dense(
+                32,
+                activation="relu",
+                kernel_regularizer=l2(0.001),
+                name="dense_32",
+            ),
+            Dropout(0.2, name="dropout_32"),
             Dense(NUM_CLASSES, activation="softmax", name="output"),
         ],
         name="baseline_model",
@@ -41,7 +47,7 @@ def build_overfit_model():
     return model
 
 
-def build_improved_model(l2_strength=0.001, dropout_rate=0.5):
+def build_improved_model(l2_strength=0.0001, dropout_rate=0.3):
     """
     Create the same high-capacity architecture as the overfit model, but with
     regularization added to reduce overfitting.

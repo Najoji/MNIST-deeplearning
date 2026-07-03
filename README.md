@@ -39,9 +39,10 @@ The baseline model is intentionally small so it can act as a stable reference:
 
 - Flatten
 - Dense(32, ReLU)
+- Dropout, rate `0.2`
 - Dense(10, Softmax)
 
-It is trained for 6 epochs. This keeps the baseline simple and avoids making it another overfitting example.
+It uses light L2 regularization with strength `0.001` and is trained for 15 epochs. This keeps the baseline simple, reasonably accurate, and close across training, validation, and test results.
 
 ## How Overfitting Was Intentionally Created
 
@@ -61,10 +62,12 @@ No Dropout, BatchNormalization, or L2 regularization is used. The model is train
 
 The improved model keeps the same large Dense layer sizes as the overfitted model. It does not remove layers or reduce neurons. Overfitting is reduced only by changing the training strategy:
 
-- Dropout layers with rate `0.5`
-- L2 kernel regularization on Dense layers
+- Dropout layers with rate `0.3`
+- L2 kernel regularization on Dense layers with strength `0.0001`
 - EarlyStopping with `restore_best_weights=True`
 - ReduceLROnPlateau to lower the learning rate when validation loss stops improving
+
+In the saved run, the improved model trained for 30 epochs and restored the best validation-accuracy weights from epoch 24.
 
 The same training, validation, and test split is used for all three models.
 
@@ -99,6 +102,8 @@ The following plots are saved:
 - `plots/overfit_model_loss.png`
 - `plots/improved_model_accuracy.png`
 - `plots/improved_model_loss.png`
+- `plots/model_accuracy_comparison.png`
+- `plots/model_epochs_comparison.png`
 
 ## How To Run
 
