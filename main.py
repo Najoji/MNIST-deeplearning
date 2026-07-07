@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from models import build_baseline_model, build_improved_model, build_overfit_model
 from train import (
+    baseline_model_callbacks,
     compile_model,
     improved_model_callbacks,
     train_and_evaluate,
@@ -47,8 +48,9 @@ def main():
         train_data=train_data,
         val_data=val_data,
         test_data=test_data,
-        epochs=15,
+        epochs=60,
         batch_size=128,
+        callbacks=baseline_model_callbacks(),
     )
 
     set_reproducibility()
@@ -60,7 +62,7 @@ def main():
         train_data=train_data,
         val_data=val_data,
         test_data=test_data,
-        epochs=60,
+        epochs=150,
         batch_size=128,
     )
 
@@ -73,7 +75,7 @@ def main():
         train_data=train_data,
         val_data=val_data,
         test_data=test_data,
-        epochs=35,
+        epochs=60,
         batch_size=128,
         callbacks=improved_model_callbacks(),
     )

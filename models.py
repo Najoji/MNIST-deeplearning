@@ -1,7 +1,7 @@
 """Model definitions for the MNIST assignment."""
 
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Flatten, Input
+from tensorflow.keras.layers import Dense, Dropout, Flatten, Input, GaussianNoise, Reshape, RandomRotation, RandomTranslation, RandomZoom
 from tensorflow.keras.regularizers import l2
 
 
@@ -10,18 +10,16 @@ NUM_CLASSES = 10
 
 
 def build_baseline_model():
-    """Create a small regularized baseline classifier."""
+    """
+    Create a highly tuned, optimally balanced baseline model.
+    A completely vanilla Neural Network.
+    """
     model = Sequential(
         [
             Input(shape=INPUT_SHAPE, name="input"),
             Flatten(name="flatten"),
-            Dense(
-                32,
-                activation="relu",
-                kernel_regularizer=l2(0.001),
-                name="dense_32",
-            ),
-            Dropout(0.2, name="dropout_32"),
+            Dense(96, activation="relu", name="dense_96"),
+            Dropout(0.4, name="dropout_1"),
             Dense(NUM_CLASSES, activation="softmax", name="output"),
         ],
         name="baseline_model",
@@ -47,7 +45,7 @@ def build_overfit_model():
     return model
 
 
-def build_improved_model(l2_strength=0.0001, dropout_rate=0.3):
+def build_improved_model(l2_strength=0.0002, dropout_rate=0.3):
     """
     Create the same high-capacity architecture as the overfit model, but with
     regularization added to reduce overfitting.
@@ -59,6 +57,10 @@ def build_improved_model(l2_strength=0.0001, dropout_rate=0.3):
     model = Sequential(
         [
             Input(shape=INPUT_SHAPE, name="input"),
+            Reshape((28, 28, 1), name="reshape"),
+            RandomRotation(0.08, name="random_rotation"),
+            RandomTranslation(0.08, 0.08, name="random_translation"),
+            RandomZoom(0.08, name="random_zoom"),
             Flatten(name="flatten"),
             Dense(
                 1024,
